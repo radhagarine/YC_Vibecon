@@ -69,6 +69,104 @@ async def get_status_checks():
     
     return status_checks
 
+# ==================== Authentication Routes ====================
+
+@api_router.post("/auth/session")
+async def create_auth_session(request: Request):
+    """
+    Process session_id from Emergent Auth and create user session.
+    """
+    session_id = request.headers.get("X-Session-ID")
+    if not session_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="X-Session-ID header is required"
+        )
+    
+    try:
+        # Fetch user data from Emergent Auth
+        emergent_user_data = await fetch_user_from_emergent(session_id)
+        
+        # Create or get existing user
+        user = await create_or_update_user(db, emergent_user_data)
+        
+        # Create session
+        session = await create_session(db, user.id, emergent_user_data["session_token"])
+        
+        # Create response with user data
+        response = JSONResponse(content={
+            "id": user.id,
+            "email": user.email,
+            "name": user.name,
+            "picture": user.picture
+        })
+        
+        # Set httpOnly cookie with session token
+        response.set_cookie(
+            key="session_token",
+            value=emergent_user_data["session_token"],
+            httponly=True,
+            secure=True,
+            samesite="none",
+            max_age=7 * 24 * 60 * 60,  # 7 days
+            path="/"
+        )
+        
+        logger.info(f"Session created for user: {user.email}")
+        return response
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creating session: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to create session"
+        )
+
+@api_router.get("/auth/me", response_model=User)
+async def get_current_user_info(request: Request):
+    """
+    Get current authenticated user information.
+    """
+    user = await get_current_user(request, db)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated"
+        )
+    return user
+
+@api_router.post("/auth/logout")
+async def logout(request: Request):
+    """
+    Logout user by deleting session and clearing cookie.
+    """
+    session_token = request.cookies.get("session_token")
+    if not session_token:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No active session"
+        )
+    
+    # Delete session from database
+    result = await db.user_sessions.delete_one({"session_token": session_token})
+    
+    if result.deleted_count == 0:
+        logger.warning("Session not found during logout")
+    
+    # Create response and clear cookie
+    response = JSONResponse(content={"message": "Logged out successfully"})
+    response.delete_cookie(
+        key="session_token",
+        path="/",
+        samesite="none",
+        secure=True
+    )
+    
+    logger.info("User logged out")
+    return response
+
 # Include the router in the main app
 app.include_router(api_router)
 
