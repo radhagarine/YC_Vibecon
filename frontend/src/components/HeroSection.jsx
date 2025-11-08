@@ -45,6 +45,7 @@ const HeroSection = () => {
           console.log('Video loaded successfully');
         }}
       >
+        <source src="/logo.webm" type="video/webm" />
         <source src="/logo.mp4" type="video/mp4" />
       </video>
 
