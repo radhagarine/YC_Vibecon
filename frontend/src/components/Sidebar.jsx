@@ -29,16 +29,16 @@ const Sidebar = () => {
         <Button
           onClick={() => setIsCollapsed(!isCollapsed)}
           variant="ghost"
-          size="sm"
-          className="text-white hover:bg-red-800"
+          size="lg"
+          className="text-white hover:bg-red-800 p-3"
         >
-          <Menu className="w-6 h-6" />
+          <Menu className="w-8 h-8" />
         </Button>
         {!isCollapsed && (
           <img 
             src="/aira-logo.png" 
             alt="AIRA" 
-            className="h-14 w-auto"
+            className="h-16 w-auto"
           />
         )}
       </div>
