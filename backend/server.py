@@ -479,24 +479,24 @@ async def upload_document(request: Request, business_id: str, file: UploadFile =
         id=doc_id,
         filename=file.filename,
         size=len(content),
-        url=f"/api/profile/document/{doc_id}"
+        url=f"/api/business/{business_id}/document/{doc_id}"
     )
     
-    # Update profile with document
-    profile = await db.business_profiles.find_one({"user_id": user.id})
-    if profile:
-        documents = profile.get("documents", [])
+    # Update business with document
+    business = await db.business_profiles.find_one({"_id": business_id, "user_id": user.id})
+    if business:
+        documents = business.get("documents", [])
         documents.append(document.dict())
         await db.business_profiles.update_one(
-            {"user_id": user.id},
+            {"_id": business_id, "user_id": user.id},
             {"$set": {"documents": documents, "updated_at": datetime.now(timezone.utc)}}
         )
     
-    logger.info(f"Document uploaded for user: {user.email}, file: {file.filename}")
+    logger.info(f"Document uploaded for business: {business_id}, file: {file.filename}")
     return document.dict()
 
-@api_router.get("/profile/document/{doc_id}")
-async def get_document(request: Request, doc_id: str):
+@api_router.get("/business/{business_id}/document/{doc_id}")
+async def get_document(request: Request, business_id: str, doc_id: str):
     """
     Download a business document
     """
@@ -507,15 +507,15 @@ async def get_document(request: Request, doc_id: str):
             detail="Not authenticated"
         )
     
-    # Find document in user's profile
-    profile = await db.business_profiles.find_one({"user_id": user.id})
-    if not profile:
+    # Find document in business
+    business = await db.business_profiles.find_one({"_id": business_id, "user_id": user.id})
+    if not business:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Profile not found"
+            detail="Business not found"
         )
     
-    documents = profile.get("documents", [])
+    documents = business.get("documents", [])
     document = next((d for d in documents if d["id"] == doc_id), None)
     
     if not document:
@@ -544,8 +544,8 @@ async def get_document(request: Request, doc_id: str):
         media_type="application/octet-stream"
     )
 
-@api_router.delete("/profile/document/{doc_id}")
-async def delete_document(request: Request, doc_id: str):
+@api_router.delete("/business/{business_id}/document/{doc_id}")
+async def delete_document(request: Request, business_id: str, doc_id: str):
     """
     Delete a business document
     """
@@ -556,15 +556,15 @@ async def delete_document(request: Request, doc_id: str):
             detail="Not authenticated"
         )
     
-    # Find and remove document from profile
-    profile = await db.business_profiles.find_one({"user_id": user.id})
-    if not profile:
+    # Find and remove document from business
+    business = await db.business_profiles.find_one({"_id": business_id, "user_id": user.id})
+    if not business:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Profile not found"
+            detail="Business not found"
         )
     
-    documents = profile.get("documents", [])
+    documents = business.get("documents", [])
     document = next((d for d in documents if d["id"] == doc_id), None)
     
     if not document:
@@ -576,7 +576,7 @@ async def delete_document(request: Request, doc_id: str):
     # Remove from database
     documents = [d for d in documents if d["id"] != doc_id]
     await db.business_profiles.update_one(
-        {"user_id": user.id},
+        {"_id": business_id, "user_id": user.id},
         {"$set": {"documents": documents, "updated_at": datetime.now(timezone.utc)}}
     )
     
@@ -587,7 +587,7 @@ async def delete_document(request: Request, doc_id: str):
             file_path.unlink()
             break
     
-    logger.info(f"Document deleted for user: {user.email}, doc_id: {doc_id}")
+    logger.info(f"Document deleted for business: {business_id}, doc_id: {doc_id}")
     return {"message": "Document deleted successfully"}
 
 # Include the router in the main app
