@@ -8,7 +8,7 @@ class User(BaseModel):
     email: str
     name: str
     picture: str
-    created_at: datetime = Field(default_factory=lambda: datetime.utcnow())
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     class Config:
         populate_by_name = True
