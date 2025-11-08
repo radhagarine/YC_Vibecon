@@ -23,10 +23,12 @@ const Profile = ({ user, onSignOut }) => {
     business_name: '',
     business_type: '',
     business_phone: '',
-    custom_services: []
+    custom_services: [],
+    documents: []
   });
   
   const [newService, setNewService] = useState('');
+  const [uploadingDoc, setUploadingDoc] = useState(false);
 
   useEffect(() => {
     if (!user) {
