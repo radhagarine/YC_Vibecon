@@ -53,15 +53,15 @@ const Sidebar = () => {
             <button
               key={item.path}
               onClick={() => navigate(item.path)}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg mb-2 transition-all ${
+              className={`w-full flex items-center space-x-3 px-4 py-3.5 rounded-lg mb-2 transition-all ${
                 isActive
                   ? 'bg-red-700 text-white'
                   : 'text-red-100 hover:bg-red-800/50'
               } ${isCollapsed ? 'justify-center' : ''}`}
               title={isCollapsed ? item.label : ''}
             >
-              <Icon className="w-5 h-5 flex-shrink-0" />
-              {!isCollapsed && <span className="font-medium">{item.label}</span>}
+              <Icon className="w-6 h-6 flex-shrink-0" />
+              {!isCollapsed && <span className="font-medium text-base">{item.label}</span>}
             </button>
           );
         })}
