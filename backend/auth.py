@@ -37,7 +37,12 @@ async def get_current_user(request: Request, db: AsyncIOMotorDatabase) -> Option
         return None
     
     # Check if session expired
-    if session_data["expires_at"] < datetime.now(timezone.utc):
+    expires_at = session_data["expires_at"]
+    # Handle timezone-naive datetime from MongoDB
+    if expires_at.tzinfo is None:
+        expires_at = expires_at.replace(tzinfo=timezone.utc)
+    
+    if expires_at < datetime.now(timezone.utc):
         logger.warning("Session expired")
         await db.user_sessions.delete_one({"session_token": session_token})
         return None
