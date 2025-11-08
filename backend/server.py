@@ -270,12 +270,18 @@ async def create_business(request: Request, profile_data: BusinessProfileCreate)
     )
     
     business_dict = business.dict(by_alias=True)
+    
+    # Ensure _id is stored as string, not ObjectId
+    business_id = business_dict.get("_id")
+    if business_id:
+        business_dict["_id"] = str(business_id)
+    
     await db.business_profiles.insert_one(business_dict)
     
-    logger.info(f"Business created for user: {user.email}, business: {business.business_name}")
+    logger.info(f"Business created for user: {user.email}, business: {business.business_name}, id: {business_id}")
     
     # Return with id instead of _id
-    business_dict["id"] = str(business_dict.pop("_id"))
+    business_dict["id"] = business_dict.pop("_id")
     return business_dict
 
 @api_router.put("/business/{business_id}")
