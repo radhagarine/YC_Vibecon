@@ -26,7 +26,7 @@ const Header = ({ isAuthenticated, onSignIn, onSignOut, onNavigate }) => {
               style={{ backgroundColor: 'transparent' }}
               onError={() => setLogoError(true)}
             >
-              <source src="https://customer-assets.emergentagent.com/job_7830f837-81bb-4066-8995-2090a92ac447/artifacts/5clcks0p_logo.mp4" type="video/mp4" />
+              <source src="/logo.mp4" type="video/mp4" />
             </video>
           ) : (
             <div className="text-red-600 font-bold text-3xl">AIRA</div>
