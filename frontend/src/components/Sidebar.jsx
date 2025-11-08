@@ -21,7 +21,7 @@ const Sidebar = () => {
   return (
     <div 
       className={`bg-gradient-to-b from-red-900 via-red-800 to-red-900 min-h-screen transition-all duration-300 ${
-        isCollapsed ? 'w-20' : 'w-64'
+        isCollapsed ? 'w-20' : 'w-72'
       }`}
     >
       {/* Logo Section - White background, aligned with top nav bar height */}
