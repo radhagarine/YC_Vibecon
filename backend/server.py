@@ -400,7 +400,7 @@ async def delete_business(request: Request, business_id: str):
                 break
     
     # Delete business from database
-    await db.business_profiles.delete_one({"_id": business_id, "user_id": user.id})
+    await db.business_profiles.delete_one({"_id": query_id, "user_id": user.id})
     
     logger.info(f"Business deleted for user: {user.email}, business_id: {business_id}")
     return {"message": "Business deleted successfully"}
