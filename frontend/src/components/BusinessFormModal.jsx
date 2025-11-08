@@ -218,7 +218,7 @@ const BusinessFormModal = ({ business, onClose }) => {
   };
 
   return (
-    <Dialog open={true} onOpenChange={() => onClose(false)}>
+    <Dialog open={true} onOpenChange={(open) => !open && onClose(false)}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-gray-900">
