@@ -25,11 +25,11 @@ const Sidebar = () => {
       }`}
     >
       {/* Logo Section - White background, aligned with top nav bar height */}
-      <div className="h-[72px] flex items-center justify-between bg-white border-b border-gray-200 px-4">
+      <div className="h-[72px] flex items-center justify-between bg-white border-b border-gray-200 px-3">
         {/* Hamburger Menu */}
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="text-gray-700 hover:bg-gray-100 p-2 rounded transition-colors"
+          className="text-gray-700 hover:bg-gray-100 p-2 rounded transition-colors flex-shrink-0"
         >
           <Menu className="w-7 h-7" />
         </button>
@@ -37,8 +37,15 @@ const Sidebar = () => {
         {/* Logo */}
         {!isCollapsed && (
           <div 
-            className="flex-1 mx-4 h-14 bg-contain bg-no-repeat bg-center"
-            style={{ backgroundImage: 'url(/aira-logo.png)' }}
+            className="flex-1 ml-2 mr-3"
+            style={{ 
+              backgroundImage: 'url(/aira-logo.png)',
+              backgroundSize: 'contain',
+              backgroundRepeat: 'no-repeat',
+              backgroundPosition: 'center',
+              minHeight: '56px',
+              height: '56px'
+            }}
           />
         )}
       </div>
