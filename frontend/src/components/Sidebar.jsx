@@ -24,15 +24,15 @@ const Sidebar = () => {
         isCollapsed ? 'w-20' : 'w-72'
       }`}
     >
-      {/* Logo Section - White background, aligned with top nav bar height */}
-      <div className="h-16 flex items-center px-4 bg-white dark:bg-gray-700 border-b border-gray-200">
+      {/* Logo Section - Dark red background, aligned with top nav bar height */}
+      <div className="h-16 flex items-center px-4 bg-red-900 border-b border-red-700/50">
         {/* Hamburger Menu */}
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="bg-white dark:bg-gray-700 p-2 rounded-lg transition-colors focus:outline-none hover:bg-white/80 dark:hover:bg-gray-600"
+          className="bg-red-900 p-2 rounded-lg transition-colors focus:outline-none hover:bg-red-800/50"
           type="button"
         >
-          <Menu className="w-7 h-7 text-gray-600 dark:text-gray-400" />
+          <Menu className="w-7 h-7 text-white" />
         </button>
         
         {/* Logo */}
