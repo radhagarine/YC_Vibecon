@@ -537,13 +537,21 @@ async def upload_document(request: Request, business_id: str, file: UploadFile =
         url=f"/api/business/{business_id}/document/{doc_id}"
     )
     
+    # Handle both string IDs and ObjectIds
+    from bson import ObjectId
+    query_id = business_id
+    try:
+        query_id = ObjectId(business_id)
+    except:
+        pass
+    
     # Update business with document
-    business = await db.business_profiles.find_one({"_id": business_id, "user_id": user.id})
+    business = await db.business_profiles.find_one({"_id": query_id, "user_id": user.id})
     if business:
         documents = business.get("documents", [])
         documents.append(document.dict())
         await db.business_profiles.update_one(
-            {"_id": business_id, "user_id": user.id},
+            {"_id": query_id, "user_id": user.id},
             {"$set": {"documents": documents, "updated_at": datetime.now(timezone.utc)}}
         )
     
