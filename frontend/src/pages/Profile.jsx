@@ -5,7 +5,7 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
-import { ArrowLeft, Plus, X, Save } from 'lucide-react';
+import { ArrowLeft, Plus, X, Save, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import axios from 'axios';
 
