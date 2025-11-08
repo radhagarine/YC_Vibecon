@@ -16,22 +16,11 @@ const Header = ({ isAuthenticated, onSignIn, onSignOut, onNavigate }) => {
     <header className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-sm">
       <div className="container mx-auto px-6 py-4 flex items-center justify-between">
         <div className="flex items-center">
-          {!logoError ? (
-            <video 
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="h-12 w-auto"
-              style={{ backgroundColor: 'transparent', mixBlendMode: 'screen' }}
-              onError={() => setLogoError(true)}
-            >
-              <source src="/logo.webm" type="video/webm" />
-              <source src="/logo.mp4" type="video/mp4" />
-            </video>
-          ) : (
-            <div className="text-red-600 font-bold text-3xl">AIRA</div>
-          )}
+          <img 
+            src="/aira-logo.png" 
+            alt="AIRA Logo" 
+            className="h-12 w-auto"
+          />
         </div>
         
         <nav className="hidden md:flex items-center space-x-8">
