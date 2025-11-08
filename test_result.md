@@ -107,39 +107,48 @@ user_problem_statement: "Build AIRA homepage with video background, Google OAuth
 backend:
   - task: "Google OAuth Authentication with Emergent Auth"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/auth.py, /app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Implemented Google OAuth using Emergent Auth integration. Created auth endpoints: POST /api/auth/session (process session_id and create user session), GET /api/auth/me (get current user), POST /api/auth/logout (logout user). Session tokens stored in httpOnly cookies with 7-day expiry."
+      - working: true
+        agent: "testing"
+        comment: "TESTED: All authentication endpoints working correctly. Fixed timezone-aware datetime comparison issue in auth.py and Pydantic model serialization in server.py. POST /api/auth/session validates X-Session-ID header and handles Emergent Auth errors properly. GET /api/auth/me works with both Authorization header and session cookies. POST /api/auth/logout successfully invalidates sessions. Session expiry handling works correctly - expired sessions are rejected and automatically deleted."
   
   - task: "User Model and Database Schema"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/models.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Created User and UserSession models. User model includes id, email, name, picture, created_at. UserSession includes user_id, session_token, expires_at, created_at. Proper MongoDB _id to Pydantic id mapping configured."
+      - working: true
+        agent: "testing"
+        comment: "TESTED: User and UserSession models working correctly. Fixed timezone-aware datetime defaults. MongoDB _id to Pydantic id mapping works properly. User data serialization returns correct field names (id, email, name, picture, created_at). Database operations for user creation and session management are functioning correctly."
 
   - task: "Session Management"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/auth.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Implemented session creation with 7-day expiry, session validation, and get_current_user helper that checks cookies first then Authorization header. Sessions stored in MongoDB with timezone-aware datetime."
+      - working: true
+        agent: "testing"
+        comment: "TESTED: Session management fully functional. Session creation with 7-day expiry works. Session validation checks both cookies and Authorization headers correctly. Expired sessions are properly detected, rejected with 401, and automatically deleted from database. Session token lookup and user retrieval working correctly. Cookie and header authentication both functional."
 
 frontend:
   - task: "Homepage with Video Background"
