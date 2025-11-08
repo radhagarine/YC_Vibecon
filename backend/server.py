@@ -342,12 +342,15 @@ async def delete_business(request: Request, business_id: str):
             detail="Not authenticated"
         )
     
+    logger.info(f"Attempting to delete business: {business_id} for user: {user.email}")
+    
     # Find business
     business = await db.business_profiles.find_one({"_id": business_id, "user_id": user.id})
     if not business:
+        logger.error(f"Business {business_id} not found for deletion")
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Business not found"
+            detail=f"Business not found: {business_id}"
         )
     
     # Delete all documents
