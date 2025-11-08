@@ -68,30 +68,40 @@ function App() {
         const sessionId = hash.split('session_id=')[1].split('&')[0];
         
         try {
-          // Exchange session_id for user data
-          const response = await fetch(SESSION_API, {
-            method: 'GET',
+          // Exchange session_id for user data and session token
+          const response = await fetch(`${API}/auth/session`, {
+            method: 'POST',
             headers: {
               'X-Session-ID': sessionId
-            }
+            },
+            credentials: 'include'
           });
 
           if (response.ok) {
             const userData = await response.json();
             setUser(userData);
-            localStorage.setItem('aira_user', JSON.stringify(userData));
             
             // Clean URL
             window.history.replaceState(null, '', window.location.pathname);
+          } else {
+            console.error('Auth failed:', response.status);
           }
         } catch (error) {
           console.error('Auth error:', error);
         }
       } else {
-        // Check for existing session
-        const savedUser = localStorage.getItem('aira_user');
-        if (savedUser) {
-          setUser(JSON.parse(savedUser));
+        // Check for existing session via cookie
+        try {
+          const response = await fetch(`${API}/auth/me`, {
+            credentials: 'include'
+          });
+          
+          if (response.ok) {
+            const userData = await response.json();
+            setUser(userData);
+          }
+        } catch (error) {
+          console.error('Session check error:', error);
         }
       }
       
