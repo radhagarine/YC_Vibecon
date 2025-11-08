@@ -338,14 +338,14 @@ async def update_business(request: Request, business_id: str, profile_data: Busi
     update_data["updated_at"] = datetime.now(timezone.utc)
     
     result = await db.business_profiles.update_one(
-        {"_id": business_id, "user_id": user.id},
+        {"_id": query_id, "user_id": user.id},
         {"$set": update_data}
     )
     
     logger.info(f"Business updated: matched={result.matched_count}, modified={result.modified_count}")
     
     # Get and return updated business
-    updated_business = await db.business_profiles.find_one({"_id": business_id})
+    updated_business = await db.business_profiles.find_one({"_id": query_id})
     updated_business["id"] = str(updated_business.pop("_id"))
     return updated_business
 
