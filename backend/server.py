@@ -174,6 +174,136 @@ async def logout(request: Request):
     logger.info("User logged out")
     return response
 
+# ==================== Business Profile Routes ====================
+
+BUSINESS_TYPES = [
+    "Restaurant / Cafe",
+    "Retail Store",
+    "Medical / Dental Office",
+    "Legal Services",
+    "Salon / Spa",
+    "Fitness Center / Gym",
+    "Real Estate",
+    "Accounting / Financial Services",
+    "Consulting",
+    "Home Services (Plumbing, Electrical, etc.)",
+    "Other"
+]
+
+@api_router.get("/profile")
+async def get_business_profile(request: Request):
+    """
+    Get current user's business profile.
+    """
+    user = await get_current_user(request, db)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated"
+        )
+    
+    profile = await db.business_profiles.find_one({"user_id": user.id})
+    if not profile:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Profile not found"
+        )
+    
+    # Remove MongoDB _id field
+    profile.pop("_id", None)
+    return profile
+
+@api_router.get("/profile/business-types")
+async def get_business_types():
+    """
+    Get list of predefined business types.
+    """
+    return {"business_types": BUSINESS_TYPES}
+
+@api_router.post("/profile")
+async def create_business_profile(request: Request, profile_data: BusinessProfileCreate):
+    """
+    Create business profile for current user.
+    """
+    user = await get_current_user(request, db)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated"
+        )
+    
+    # Check if profile already exists
+    existing_profile = await db.business_profiles.find_one({"user_id": user.id})
+    if existing_profile:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Profile already exists. Use PUT to update."
+        )
+    
+    # Validate business type
+    if profile_data.business_type not in BUSINESS_TYPES:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid business_type. Must be one of: {', '.join(BUSINESS_TYPES)}"
+        )
+    
+    # Create profile
+    profile = BusinessProfile(
+        user_id=user.id,
+        **profile_data.dict()
+    )
+    
+    await db.business_profiles.insert_one(profile.dict())
+    
+    logger.info(f"Profile created for user: {user.email}")
+    
+    # Return without _id
+    profile_dict = profile.dict()
+    return profile_dict
+
+@api_router.put("/profile")
+async def update_business_profile(request: Request, profile_data: BusinessProfileUpdate):
+    """
+    Update existing business profile.
+    """
+    user = await get_current_user(request, db)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated"
+        )
+    
+    # Check if profile exists
+    existing_profile = await db.business_profiles.find_one({"user_id": user.id})
+    if not existing_profile:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Profile not found. Use POST to create."
+        )
+    
+    # Validate business type
+    if profile_data.business_type not in BUSINESS_TYPES:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid business_type. Must be one of: {', '.join(BUSINESS_TYPES)}"
+        )
+    
+    # Update profile
+    update_data = profile_data.dict()
+    update_data["updated_at"] = datetime.now(timezone.utc)
+    
+    await db.business_profiles.update_one(
+        {"user_id": user.id},
+        {"$set": update_data}
+    )
+    
+    logger.info(f"Profile updated for user: {user.email}")
+    
+    # Get and return updated profile
+    updated_profile = await db.business_profiles.find_one({"user_id": user.id})
+    updated_profile.pop("_id", None)
+    return updated_profile
+
 # Include the router in the main app
 app.include_router(api_router)
 
