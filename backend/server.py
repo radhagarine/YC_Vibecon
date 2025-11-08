@@ -278,10 +278,10 @@ async def create_business(request: Request, profile_data: BusinessProfileCreate)
     business_dict["id"] = str(business_dict.pop("_id"))
     return business_dict
 
-@api_router.put("/profile")
-async def update_business_profile(request: Request, profile_data: BusinessProfileUpdate):
+@api_router.put("/business/{business_id}")
+async def update_business(request: Request, business_id: str, profile_data: BusinessProfileUpdate):
     """
-    Update existing business profile.
+    Update existing business.
     """
     user = await get_current_user(request, db)
     if not user:
@@ -290,12 +290,12 @@ async def update_business_profile(request: Request, profile_data: BusinessProfil
             detail="Not authenticated"
         )
     
-    # Check if profile exists
-    existing_profile = await db.business_profiles.find_one({"user_id": user.id})
-    if not existing_profile:
+    # Check if business exists and belongs to user
+    existing_business = await db.business_profiles.find_one({"_id": business_id, "user_id": user.id})
+    if not existing_business:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Profile not found. Use POST to create."
+            detail="Business not found"
         )
     
     # Validate business type
@@ -305,21 +305,66 @@ async def update_business_profile(request: Request, profile_data: BusinessProfil
             detail=f"Invalid business_type. Must be one of: {', '.join(BUSINESS_TYPES)}"
         )
     
-    # Update profile
+    # Update business
     update_data = profile_data.dict()
     update_data["updated_at"] = datetime.now(timezone.utc)
     
     await db.business_profiles.update_one(
-        {"user_id": user.id},
+        {"_id": business_id, "user_id": user.id},
         {"$set": update_data}
     )
     
-    logger.info(f"Profile updated for user: {user.email}")
+    logger.info(f"Business updated for user: {user.email}, business_id: {business_id}")
     
-    # Get and return updated profile
-    updated_profile = await db.business_profiles.find_one({"user_id": user.id})
-    updated_profile.pop("_id", None)
-    return updated_profile
+    # Get and return updated business
+    updated_business = await db.business_profiles.find_one({"_id": business_id})
+    updated_business["id"] = str(updated_business.pop("_id"))
+    return updated_business
+
+@api_router.delete("/business/{business_id}")
+async def delete_business(request: Request, business_id: str):
+    """
+    Delete business and all related documents.
+    """
+    user = await get_current_user(request, db)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated"
+        )
+    
+    # Find business
+    business = await db.business_profiles.find_one({"_id": business_id, "user_id": user.id})
+    if not business:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Business not found"
+        )
+    
+    # Delete all documents
+    documents = business.get("documents", [])
+    for doc in documents:
+        doc_id = doc["id"]
+        for ext in ['.pdf', '.doc', '.docx']:
+            file_path = UPLOAD_DIR / f"{doc_id}{ext}"
+            if file_path.exists():
+                file_path.unlink()
+                break
+    
+    # Delete logo if exists
+    if business.get("logo_url"):
+        logo_id = business["logo_url"].split("/")[-1]
+        for ext in ['.png', '.jpg', '.jpeg']:
+            logo_path = UPLOAD_DIR / f"{logo_id}{ext}"
+            if logo_path.exists():
+                logo_path.unlink()
+                break
+    
+    # Delete business from database
+    await db.business_profiles.delete_one({"_id": business_id, "user_id": user.id})
+    
+    logger.info(f"Business deleted for user: {user.email}, business_id: {business_id}")
+    return {"message": "Business deleted successfully"}
 
 @api_router.post("/profile/upload-document")
 async def upload_document(request: Request, file: UploadFile = File(...)):
