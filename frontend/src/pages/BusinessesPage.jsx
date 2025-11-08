@@ -77,11 +77,13 @@ const BusinessesPage = ({ user }) => {
     navigate(`/dashboard/calendar/${business.id}`);
   };
 
-  const handleModalClose = (success) => {
+  const handleModalClose = async (success) => {
+    console.log('Modal closed with success:', success);
     setShowModal(false);
     setEditingBusiness(null);
     if (success) {
-      loadBusinesses();
+      // Reload businesses after successful save
+      await loadBusinesses();
     }
   };
 
