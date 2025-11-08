@@ -23,3 +23,27 @@ class UserSession(BaseModel):
 
     class Config:
         json_encoders = {datetime: lambda v: v.isoformat()}
+
+class BusinessProfile(BaseModel):
+    user_id: str
+    business_name: str
+    business_type: str
+    custom_services: list[str] = Field(default_factory=list)
+    business_phone: str
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+    class Config:
+        json_encoders = {datetime: lambda v: v.isoformat()}
+
+class BusinessProfileCreate(BaseModel):
+    business_name: str = Field(min_length=2)
+    business_type: str
+    custom_services: list[str] = Field(default_factory=list)
+    business_phone: str
+
+class BusinessProfileUpdate(BaseModel):
+    business_name: str = Field(min_length=2)
+    business_type: str
+    custom_services: list[str] = Field(default_factory=list)
+    business_phone: str
