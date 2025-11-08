@@ -301,8 +301,18 @@ async def update_business(request: Request, business_id: str, profile_data: Busi
     
     logger.info(f"Attempting to update business: {business_id} for user: {user.email}")
     
+    # Try to find business - handle both string IDs and ObjectIds
+    from bson import ObjectId
+    query_id = business_id
+    try:
+        # Try as ObjectId first (for existing records)
+        query_id = ObjectId(business_id)
+    except:
+        # Use as string if not valid ObjectId format
+        pass
+    
     # Check if business exists and belongs to user
-    existing_business = await db.business_profiles.find_one({"_id": business_id, "user_id": user.id})
+    existing_business = await db.business_profiles.find_one({"_id": query_id, "user_id": user.id})
     
     if not existing_business:
         # Log for debugging
