@@ -140,6 +140,7 @@ const BusinessesPage = ({ user }) => {
 
       {showModal && (
         <BusinessFormModal
+          key={editingBusiness?.id || 'new'}
           business={editingBusiness}
           onClose={handleModalClose}
         />
