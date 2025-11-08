@@ -55,14 +55,19 @@ const BusinessesPage = ({ user }) => {
     }
 
     try {
-      await axios.delete(`${API}/business/${business.id}`, {
+      console.log('Deleting business:', business.id);
+      const response = await axios.delete(`${API}/business/${business.id}`, {
         withCredentials: true
       });
+      console.log('Delete response:', response.data);
       toast.success('Business deleted successfully');
-      loadBusinesses();
+      
+      // Refresh the businesses list
+      await loadBusinesses();
     } catch (error) {
       console.error('Error deleting business:', error);
-      toast.error('Failed to delete business');
+      console.error('Error details:', error.response?.data);
+      toast.error(error.response?.data?.detail || 'Failed to delete business');
     }
   };
 
