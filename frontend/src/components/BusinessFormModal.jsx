@@ -186,8 +186,11 @@ const BusinessFormModal = ({ business, onClose }) => {
         business_name: formData.business_name,
         business_type: formData.business_type,
         business_phone: formData.business_phone,
-        custom_services: formData.custom_services
+        custom_services: formData.custom_services || []
       };
+
+      console.log('Submitting payload:', payload);
+      console.log('Current formData.custom_services:', formData.custom_services);
 
       if (business) {
         // Update existing business
