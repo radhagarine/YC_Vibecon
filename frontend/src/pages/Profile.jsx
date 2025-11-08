@@ -334,6 +334,69 @@ const Profile = ({ user, onSignOut }) => {
                 </div>
               </div>
 
+              {/* Business Documents */}
+              <div>
+                <Label className="text-white mb-2 block">
+                  Business Documents
+                </Label>
+                <p className="text-gray-400 text-sm mb-3">
+                  Upload documents like menus, service lists, price lists, etc. (PDF, DOC, DOCX, max 5MB)
+                </p>
+                
+                {/* Document List */}
+                {formData.documents && formData.documents.length > 0 && (
+                  <div className="mb-3 space-y-2">
+                    {formData.documents.map((doc, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between bg-zinc-900 p-3 rounded border border-zinc-700"
+                      >
+                        <div className="flex items-center space-x-3">
+                          <div className="bg-red-600 p-2 rounded">
+                            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                          </div>
+                          <div>
+                            <p className="text-white text-sm">{doc.filename}</p>
+                            <p className="text-gray-400 text-xs">{(doc.size / 1024).toFixed(1)} KB</p>
+                          </div>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeDocument(index)}
+                          className="text-red-500 hover:text-red-400 hover:bg-zinc-800"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Upload Button */}
+                <div>
+                  <input
+                    type="file"
+                    id="document-upload"
+                    accept=".pdf,.doc,.docx"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                  />
+                  <Button
+                    type="button"
+                    onClick={() => document.getElementById('document-upload').click()}
+                    disabled={uploadingDoc}
+                    className="bg-zinc-900 hover:bg-zinc-800 text-white border border-zinc-700 w-full"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    {uploadingDoc ? 'Uploading...' : 'Upload Document'}
+                  </Button>
+                </div>
+              </div>
+
               {/* Submit Button */}
               <div className="pt-4">
                 <Button
