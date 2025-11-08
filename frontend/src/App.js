@@ -11,9 +11,10 @@ import Footer from './components/Footer';
 import Dashboard from './pages/Dashboard';
 import { Toaster } from './components/ui/sonner';
 
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const API = `${BACKEND_URL}/api`;
 const REDIRECT_URL = `${window.location.origin}/dashboard`;
 const AUTH_URL = `https://auth.emergentagent.com/?redirect=${encodeURIComponent(REDIRECT_URL)}`;
-const SESSION_API = 'https://demobackend.emergentagent.com/auth/v1/env/oauth/session-data';
 
 const HomePage = ({ isAuthenticated, onSignIn, onSignOut, onNavigate }) => {
   return (
