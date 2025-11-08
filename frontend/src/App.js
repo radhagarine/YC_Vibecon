@@ -1,53 +1,124 @@
-import { useEffect } from "react";
-import "@/App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import axios from "axios";
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
+import './App.css';
+import Header from './components/Header';
+import HeroSection from './components/HeroSection';
+import AboutSection from './components/AboutSection';
+import ServicesSection from './components/ServicesSection';
+import FAQSection from './components/FAQSection';
+import ContactSection from './components/ContactSection';
+import Footer from './components/Footer';
+import Dashboard from './pages/Dashboard';
+import { Toaster } from './components/ui/sonner';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+const REDIRECT_URL = `${window.location.origin}/dashboard`;
+const AUTH_URL = `https://auth.emergentagent.com/?redirect=${encodeURIComponent(REDIRECT_URL)}`;
+const SESSION_API = 'https://demobackend.emergentagent.com/auth/v1/env/oauth/session-data';
 
-const Home = () => {
-  const helloWorldApi = async () => {
-    try {
-      const response = await axios.get(`${API}/`);
-      console.log(response.data.message);
-    } catch (e) {
-      console.error(e, `errored out requesting / api`);
-    }
-  };
-
-  useEffect(() => {
-    helloWorldApi();
-  }, []);
-
+const HomePage = ({ isAuthenticated, onSignIn, onSignOut, onNavigate }) => {
   return (
-    <div>
-      <header className="App-header">
-        <a
-          className="App-link"
-          href="https://emergent.sh"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src="https://avatars.githubusercontent.com/in/1201222?s=120&u=2686cf91179bbafbc7a71bfbc43004cf9ae1acea&v=4" />
-        </a>
-        <p className="mt-5">Building something incredible ~!</p>
-      </header>
+    <div className="bg-black min-h-screen">
+      <Header 
+        isAuthenticated={isAuthenticated} 
+        onSignIn={onSignIn} 
+        onSignOut={onSignOut}
+        onNavigate={onNavigate}
+      />
+      <HeroSection />
+      <AboutSection />
+      <ServicesSection />
+      <FAQSection />
+      <ContactSection />
+      <Footer />
+      <Toaster />
     </div>
   );
 };
 
 function App() {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const handleSignIn = () => {
+    window.location.href = AUTH_URL;
+  };
+
+  const handleSignOut = async () => {
+    // Mock sign out for now
+    setUser(null);
+    localStorage.removeItem('aira_user');
+    window.location.href = '/';
+  };
+
+  useEffect(() => {
+    const processAuth = async () => {
+      // Check for session_id in URL fragment
+      const hash = window.location.hash;
+      if (hash && hash.includes('session_id=')) {
+        const sessionId = hash.split('session_id=')[1].split('&')[0];
+        
+        try {
+          // Exchange session_id for user data
+          const response = await fetch(SESSION_API, {
+            method: 'GET',
+            headers: {
+              'X-Session-ID': sessionId
+            }
+          });
+
+          if (response.ok) {
+            const userData = await response.json();
+            setUser(userData);
+            localStorage.setItem('aira_user', JSON.stringify(userData));
+            
+            // Clean URL
+            window.history.replaceState(null, '', window.location.pathname);
+          }
+        } catch (error) {
+          console.error('Auth error:', error);
+        }
+      } else {
+        // Check for existing session
+        const savedUser = localStorage.getItem('aira_user');
+        if (savedUser) {
+          setUser(JSON.parse(savedUser));
+        }
+      }
+      
+      setLoading(false);
+    };
+
+    processAuth();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-white text-2xl">Loading...</div>
+      </div>
+    );
+  }
+
   return (
-    <div className="App">
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />}>
-            <Route index element={<Home />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route 
+          path="/" 
+          element={
+            <HomePage 
+              isAuthenticated={!!user}
+              onSignIn={handleSignIn}
+              onSignOut={handleSignOut}
+              onNavigate={(path) => window.location.href = path}
+            />
+          } 
+        />
+        <Route 
+          path="/dashboard" 
+          element={<Dashboard user={user} onSignOut={handleSignOut} />} 
+        />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
