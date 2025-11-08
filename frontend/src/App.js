@@ -45,10 +45,19 @@ function App() {
   };
 
   const handleSignOut = async () => {
-    // Mock sign out for now
-    setUser(null);
-    localStorage.removeItem('aira_user');
-    window.location.href = '/';
+    try {
+      await fetch(`${API}/auth/logout`, {
+        method: 'POST',
+        credentials: 'include'
+      });
+      setUser(null);
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Force logout even if API call fails
+      setUser(null);
+      window.location.href = '/';
+    }
   };
 
   useEffect(() => {
