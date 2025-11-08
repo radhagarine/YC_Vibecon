@@ -45,7 +45,7 @@ const HeroSection = () => {
           console.log('Video loaded successfully');
         }}
       >
-        <source src="https://customer-assets.emergentagent.com/job_7830f837-81bb-4066-8995-2090a92ac447/artifacts/5clcks0p_logo.mp4" type="video/mp4" />
+        <source src="/logo.mp4" type="video/mp4" />
       </video>
 
       {/* Animated Background Fallback - only show if video fails */}
