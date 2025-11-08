@@ -124,7 +124,7 @@ async def create_auth_session(request: Request):
             detail="Failed to create session"
         )
 
-@api_router.get("/auth/me", response_model=User)
+@api_router.get("/auth/me")
 async def get_current_user_info(request: Request):
     """
     Get current authenticated user information.
@@ -135,7 +135,14 @@ async def get_current_user_info(request: Request):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Not authenticated"
         )
-    return user
+    # Return as dict to ensure proper field names
+    return {
+        "id": user.id,
+        "email": user.email,
+        "name": user.name,
+        "picture": user.picture,
+        "created_at": user.created_at.isoformat() if user.created_at else None
+    }
 
 @api_router.post("/auth/logout")
 async def logout(request: Request):
