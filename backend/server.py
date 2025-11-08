@@ -195,10 +195,10 @@ BUSINESS_TYPES = [
     "Other"
 ]
 
-@api_router.get("/profile")
-async def get_business_profile(request: Request):
+@api_router.get("/businesses")
+async def get_user_businesses(request: Request):
     """
-    Get current user's business profile.
+    Get all businesses for current user.
     """
     user = await get_current_user(request, db)
     if not user:
@@ -207,16 +207,35 @@ async def get_business_profile(request: Request):
             detail="Not authenticated"
         )
     
-    profile = await db.business_profiles.find_one({"user_id": user.id})
-    if not profile:
+    businesses = await db.business_profiles.find({"user_id": user.id}).to_list(100)
+    
+    # Convert _id to id for each business
+    for business in businesses:
+        business["id"] = str(business.pop("_id"))
+    
+    return {"businesses": businesses}
+
+@api_router.get("/business/{business_id}")
+async def get_business(request: Request, business_id: str):
+    """
+    Get specific business by ID.
+    """
+    user = await get_current_user(request, db)
+    if not user:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Profile not found"
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated"
         )
     
-    # Remove MongoDB _id field
-    profile.pop("_id", None)
-    return profile
+    business = await db.business_profiles.find_one({"_id": business_id, "user_id": user.id})
+    if not business:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Business not found"
+        )
+    
+    business["id"] = str(business.pop("_id"))
+    return business
 
 @api_router.get("/profile/business-types")
 async def get_business_types():
