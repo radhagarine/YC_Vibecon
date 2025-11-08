@@ -2,6 +2,7 @@ from fastapi import Request, HTTPException, status
 from datetime import datetime, timezone, timedelta
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from models import User, UserSession
+from typing import Optional
 import requests
 import logging
 
