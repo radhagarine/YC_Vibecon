@@ -290,12 +290,21 @@ async def update_business(request: Request, business_id: str, profile_data: Busi
             detail="Not authenticated"
         )
     
+    logger.info(f"Attempting to update business: {business_id} for user: {user.email}")
+    
     # Check if business exists and belongs to user
     existing_business = await db.business_profiles.find_one({"_id": business_id, "user_id": user.id})
+    
     if not existing_business:
+        # Log for debugging
+        all_user_businesses = await db.business_profiles.find({"user_id": user.id}).to_list(100)
+        logger.error(f"Business {business_id} not found. User has {len(all_user_businesses)} businesses")
+        for b in all_user_businesses:
+            logger.error(f"  Business _id: {b.get('_id')}, type: {type(b.get('_id'))}")
+        
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Business not found"
+            detail=f"Business not found: {business_id}"
         )
     
     # Validate business type
@@ -309,12 +318,12 @@ async def update_business(request: Request, business_id: str, profile_data: Busi
     update_data = profile_data.dict()
     update_data["updated_at"] = datetime.now(timezone.utc)
     
-    await db.business_profiles.update_one(
+    result = await db.business_profiles.update_one(
         {"_id": business_id, "user_id": user.id},
         {"$set": update_data}
     )
     
-    logger.info(f"Business updated for user: {user.email}, business_id: {business_id}")
+    logger.info(f"Business updated: matched={result.matched_count}, modified={result.modified_count}")
     
     # Get and return updated business
     updated_business = await db.business_profiles.find_one({"_id": business_id})
