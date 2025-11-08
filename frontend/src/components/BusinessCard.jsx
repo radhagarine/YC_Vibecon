@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from './ui/button';
-import { Edit, Trash2, Calendar, Building2 } from 'lucide-react';
+import { Edit, Trash2, Calendar, Building2, Phone } from 'lucide-react';
 import { Card } from './ui/card';
 
 const BusinessCard = ({ business, onEdit, onDelete, onCalendar }) => {
