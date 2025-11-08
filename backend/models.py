@@ -18,7 +18,7 @@ class UserSession(BaseModel):
     user_id: str
     session_token: str
     expires_at: datetime
-    created_at: datetime = Field(default_factory=lambda: datetime.utcnow())
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     class Config:
         json_encoders = {datetime: lambda v: v.isoformat()}
