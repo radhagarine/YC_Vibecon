@@ -31,6 +31,8 @@ const BusinessFormModal = ({ business, onClose }) => {
   useEffect(() => {
     loadBusinessTypes();
     if (business) {
+      console.log('Loading business into form:', business);
+      console.log('Business custom_services:', business.custom_services);
       setFormData({
         business_name: business.business_name || '',
         business_type: business.business_type || '',
