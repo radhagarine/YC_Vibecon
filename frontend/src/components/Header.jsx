@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from './ui/button';
 import { User } from 'lucide-react';
 
 const Header = ({ isAuthenticated, onSignIn, onSignOut, onNavigate }) => {
+  const [logoError, setLogoError] = useState(false);
+
   const scrollToSection = (sectionId) => {
     const element = document.getElementById(sectionId);
     if (element) {
@@ -14,20 +16,20 @@ const Header = ({ isAuthenticated, onSignIn, onSignOut, onNavigate }) => {
     <header className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-sm">
       <div className="container mx-auto px-6 py-4 flex items-center justify-between">
         <div className="flex items-center">
-          <video 
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="h-12 w-auto"
-            onError={(e) => {
-              e.target.style.display = 'none';
-              e.target.nextElementSibling.style.display = 'block';
-            }}
-          >
-            <source src="https://customer-assets.emergentagent.com/job_7830f837-81bb-4066-8995-2090a92ac447/artifacts/5clcks0p_logo.mp4" type="video/mp4" />
-          </video>
-          <div className="text-red-600 font-bold text-3xl" style={{ display: 'none' }}>AIRA</div>
+          {!logoError ? (
+            <video 
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="h-12 w-auto"
+              onError={() => setLogoError(true)}
+            >
+              <source src="https://customer-assets.emergentagent.com/job_7830f837-81bb-4066-8995-2090a92ac447/artifacts/5clcks0p_logo.mp4" type="video/mp4" />
+            </video>
+          ) : (
+            <div className="text-red-600 font-bold text-3xl">AIRA</div>
+          )}
         </div>
         
         <nav className="hidden md:flex items-center space-x-8">
