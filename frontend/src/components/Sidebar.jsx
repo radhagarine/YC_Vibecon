@@ -26,6 +26,14 @@ const Sidebar = () => {
     >
       {/* Logo and Hamburger */}
       <div className="p-6 flex items-center justify-between border-b border-red-700/50">
+        <Button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          variant="ghost"
+          size="sm"
+          className="text-white hover:bg-red-800"
+        >
+          <Menu className="w-6 h-6" />
+        </Button>
         {!isCollapsed && (
           <img 
             src="/aira-logo.png" 
@@ -33,14 +41,6 @@ const Sidebar = () => {
             className="h-14 w-auto"
           />
         )}
-        <Button
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          variant="ghost"
-          size="sm"
-          className="text-white hover:bg-red-800"
-        >
-          {isCollapsed ? <Menu className="w-6 h-6" /> : <X className="w-6 h-6" />}
-        </Button>
       </div>
 
       {/* Navigation */}
