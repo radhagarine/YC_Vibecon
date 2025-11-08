@@ -11,7 +11,7 @@ from typing import List, Optional
 import uuid
 from datetime import datetime, timezone
 from auth import get_current_user, fetch_user_from_emergent, create_or_update_user, create_session
-from models import User
+from models import User, BusinessProfile, BusinessProfileCreate, BusinessProfileUpdate
 
 
 ROOT_DIR = Path(__file__).parent
