@@ -230,7 +230,15 @@ async def get_business(request: Request, business_id: str):
             detail="Not authenticated"
         )
     
-    business = await db.business_profiles.find_one({"_id": business_id, "user_id": user.id})
+    # Handle both string IDs and ObjectIds
+    from bson import ObjectId
+    query_id = business_id
+    try:
+        query_id = ObjectId(business_id)
+    except:
+        pass
+    
+    business = await db.business_profiles.find_one({"_id": query_id, "user_id": user.id})
     if not business:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
