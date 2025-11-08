@@ -73,11 +73,13 @@ const Profile = ({ user, onSignOut }) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const addService = () => {
+  const addService = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
     if (newService.trim()) {
       setFormData(prev => ({
         ...prev,
-        custom_services: [...prev.custom_services, newService.trim()]
+        custom_services: [...(prev.custom_services || []), newService.trim()]
       }));
       setNewService('');
     }
@@ -88,6 +90,61 @@ const Profile = ({ user, onSignOut }) => {
       ...prev,
       custom_services: prev.custom_services.filter((_, i) => i !== index)
     }));
+  };
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Check file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('File size must be less than 5MB');
+      return;
+    }
+
+    setUploadingDoc(true);
+    try {
+      const formDataFile = new FormData();
+      formDataFile.append('file', file);
+
+      const response = await axios.post(`${API}/profile/upload-document`, formDataFile, {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      setFormData(prev => ({
+        ...prev,
+        documents: [...(prev.documents || []), response.data]
+      }));
+
+      toast.success('Document uploaded successfully');
+    } catch (error) {
+      console.error('Error uploading document:', error);
+      toast.error(error.response?.data?.detail || 'Failed to upload document');
+    } finally {
+      setUploadingDoc(false);
+    }
+  };
+
+  const removeDocument = async (index) => {
+    const doc = formData.documents[index];
+    try {
+      await axios.delete(`${API}/profile/document/${doc.id}`, {
+        withCredentials: true
+      });
+      
+      setFormData(prev => ({
+        ...prev,
+        documents: prev.documents.filter((_, i) => i !== index)
+      }));
+      
+      toast.success('Document removed');
+    } catch (error) {
+      console.error('Error removing document:', error);
+      toast.error('Failed to remove document');
+    }
   };
 
   const handleSubmit = async (e) => {
