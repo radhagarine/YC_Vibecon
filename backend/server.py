@@ -209,10 +209,13 @@ async def get_user_businesses(request: Request):
     
     businesses = await db.business_profiles.find({"user_id": user.id}).to_list(100)
     
-    # Convert _id to id for each business
+    # Convert _id to id for each business (handle both ObjectId and string)
     for business in businesses:
-        business["id"] = str(business.pop("_id"))
+        _id = business.pop("_id")
+        # Convert ObjectId to string if necessary
+        business["id"] = str(_id)
     
+    logger.info(f"Found {len(businesses)} businesses for user {user.email}")
     return {"businesses": businesses}
 
 @api_router.get("/business/{business_id}")
