@@ -15,6 +15,16 @@ const HeroSection = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  useEffect(() => {
+    // Force video to play
+    if (videoRef.current && !videoError) {
+      videoRef.current.play().catch((error) => {
+        console.log('Video autoplay failed:', error);
+        setVideoError(true);
+      });
+    }
+  }, [videoError]);
+
   return (
     <section id="home" className="relative h-screen w-full overflow-hidden">
       {/* Video Background */}
