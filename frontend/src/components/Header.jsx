@@ -22,10 +22,11 @@ const Header = ({ isAuthenticated, onSignIn, onSignOut, onNavigate }) => {
               loop
               muted
               playsInline
-              className="h-12 w-auto bg-transparent"
-              style={{ backgroundColor: 'transparent' }}
+              className="h-12 w-auto"
+              style={{ backgroundColor: 'transparent', mixBlendMode: 'screen' }}
               onError={() => setLogoError(true)}
             >
+              <source src="/logo.webm" type="video/webm" />
               <source src="/logo.mp4" type="video/mp4" />
             </video>
           ) : (
