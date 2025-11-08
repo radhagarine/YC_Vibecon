@@ -138,6 +138,10 @@ function App() {
           path="/dashboard" 
           element={<Dashboard user={user} onSignOut={handleSignOut} />} 
         />
+        <Route 
+          path="/dashboard/profile" 
+          element={<Profile user={user} onSignOut={handleSignOut} />} 
+        />
       </Routes>
     </BrowserRouter>
   );
