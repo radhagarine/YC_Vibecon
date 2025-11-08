@@ -345,6 +345,9 @@ async def update_business(request: Request, business_id: str, profile_data: Busi
     update_data = profile_data.dict()
     update_data["updated_at"] = datetime.now(timezone.utc)
     
+    logger.info(f"Update data: {update_data}")
+    logger.info(f"Custom services in update: {update_data.get('custom_services')}")
+    
     result = await db.business_profiles.update_one(
         {"_id": query_id, "user_id": user.id},
         {"$set": update_data}
