@@ -216,8 +216,22 @@ test_plan:
   test_all: false
   test_priority: "high_first"
 
+  - task: "Business Profile with Document Upload"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py, /app/frontend/src/pages/Profile.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added business profile functionality with document upload. Backend: POST/GET/PUT /api/profile, POST /api/profile/upload-document, GET/DELETE /api/profile/document/{id}. Frontend: Profile page with form for business info, custom services add/remove, document upload/delete. Fixed + button issue by preventing form submission. Documents stored in /app/backend/uploads directory. Supports PDF, DOC, DOCX up to 5MB."
+
 agent_communication:
   - agent: "main"
     message: "Implemented complete Google OAuth authentication using Emergent Auth. Backend has 3 auth endpoints and session management. Frontend integrated with backend for sign in, session validation, and logout. Need to test complete authentication flow: 1) User clicks Sign In, 2) Redirects to Emergent Auth, 3) Returns with session_id, 4) Backend creates user and session, 5) Dashboard accessible, 6) Logout works. Please refer to /app/auth_testing.md for detailed testing instructions including how to create test users in MongoDB."
+  - agent: "main"
+    message: "Fixed Profile page issues: 1) Fixed + button not working by adding e.preventDefault() and e.stopPropagation() to addService function. 2) Added document upload feature with upload/download/delete endpoints. Documents are stored in /app/backend/uploads with unique IDs. Profile page now shows uploaded documents with file info and delete option. Need to test profile creation, service add/remove, and document upload functionality."
   - agent: "testing"
     message: "BACKEND AUTHENTICATION TESTING COMPLETE: All 3 backend authentication endpoints are working correctly. Fixed 2 critical issues: (1) timezone-aware datetime comparison in auth.py for session expiry, (2) Pydantic model serialization in server.py for proper field naming. Comprehensive testing performed: session creation/validation, user authentication with cookies and headers, logout functionality, session expiry handling, error responses. All tests pass with 100% success rate. Backend authentication system is fully functional and ready for frontend integration testing."
