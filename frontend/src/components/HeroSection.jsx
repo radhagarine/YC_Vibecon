@@ -4,6 +4,7 @@ import { ArrowRight, Phone } from 'lucide-react';
 
 const HeroSection = () => {
   const [showOverlay, setShowOverlay] = useState(false);
+  const [videoError, setVideoError] = useState(false);
   const videoRef = useRef(null);
 
   useEffect(() => {
@@ -17,16 +18,27 @@ const HeroSection = () => {
   return (
     <section id="home" className="relative h-screen w-full overflow-hidden">
       {/* Video Background */}
-      <video
-        ref={videoRef}
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="absolute top-0 left-0 w-full h-full object-cover"
-      >
-        <source src="https://customer-assets.emergentagent.com/job_7830f837-81bb-4066-8995-2090a92ac447/artifacts/5clcks0p_logo.mp4" type="video/mp4" />
-      </video>
+      {!videoError ? (
+        <video
+          ref={videoRef}
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute top-0 left-0 w-full h-full object-cover"
+          onError={() => setVideoError(true)}
+        >
+          <source src="https://customer-assets.emergentagent.com/job_7830f837-81bb-4066-8995-2090a92ac447/artifacts/5clcks0p_logo.mp4" type="video/mp4" />
+        </video>
+      ) : (
+        /* Animated Background Fallback */
+        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-zinc-900 via-black to-zinc-900">
+          <div className="absolute inset-0 opacity-20">
+            <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-red-600/20 rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-orange-600/20 rounded-full blur-3xl animate-pulse animation-delay-2000"></div>
+          </div>
+        </div>
+      )}
 
       {/* Dark Overlay */}
       <div className="absolute top-0 left-0 w-full h-full bg-black/50"></div>
