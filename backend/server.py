@@ -627,8 +627,16 @@ async def delete_document(request: Request, business_id: str, doc_id: str):
             detail="Not authenticated"
         )
     
+    # Handle both string IDs and ObjectIds
+    from bson import ObjectId
+    query_id = business_id
+    try:
+        query_id = ObjectId(business_id)
+    except:
+        pass
+    
     # Find and remove document from business
-    business = await db.business_profiles.find_one({"_id": business_id, "user_id": user.id})
+    business = await db.business_profiles.find_one({"_id": query_id, "user_id": user.id})
     if not business:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -647,7 +655,7 @@ async def delete_document(request: Request, business_id: str, doc_id: str):
     # Remove from database
     documents = [d for d in documents if d["id"] != doc_id]
     await db.business_profiles.update_one(
-        {"_id": business_id, "user_id": user.id},
+        {"_id": query_id, "user_id": user.id},
         {"$set": {"documents": documents, "updated_at": datetime.now(timezone.utc)}}
     )
     
