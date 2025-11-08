@@ -309,6 +309,160 @@ async def update_business_profile(request: Request, profile_data: BusinessProfil
     updated_profile.pop("_id", None)
     return updated_profile
 
+@api_router.post("/profile/upload-document")
+async def upload_document(request: Request, file: UploadFile = File(...)):
+    """
+    Upload a business document (menu, service list, etc.)
+    """
+    user = await get_current_user(request, db)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated"
+        )
+    
+    # Validate file type
+    allowed_extensions = ['.pdf', '.doc', '.docx']
+    file_ext = Path(file.filename).suffix.lower()
+    if file_ext not in allowed_extensions:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid file type. Allowed: {', '.join(allowed_extensions)}"
+        )
+    
+    # Validate file size (5MB max)
+    content = await file.read()
+    if len(content) > 5 * 1024 * 1024:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="File size must be less than 5MB"
+        )
+    
+    # Generate unique filename
+    doc_id = str(uuid.uuid4())
+    safe_filename = f"{doc_id}{file_ext}"
+    file_path = UPLOAD_DIR / safe_filename
+    
+    # Save file
+    with open(file_path, 'wb') as f:
+        f.write(content)
+    
+    # Create document record
+    document = BusinessDocument(
+        id=doc_id,
+        filename=file.filename,
+        size=len(content),
+        url=f"/api/profile/document/{doc_id}"
+    )
+    
+    # Update profile with document
+    profile = await db.business_profiles.find_one({"user_id": user.id})
+    if profile:
+        documents = profile.get("documents", [])
+        documents.append(document.dict())
+        await db.business_profiles.update_one(
+            {"user_id": user.id},
+            {"$set": {"documents": documents, "updated_at": datetime.now(timezone.utc)}}
+        )
+    
+    logger.info(f"Document uploaded for user: {user.email}, file: {file.filename}")
+    return document.dict()
+
+@api_router.get("/profile/document/{doc_id}")
+async def get_document(request: Request, doc_id: str):
+    """
+    Download a business document
+    """
+    user = await get_current_user(request, db)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated"
+        )
+    
+    # Find document in user's profile
+    profile = await db.business_profiles.find_one({"user_id": user.id})
+    if not profile:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Profile not found"
+        )
+    
+    documents = profile.get("documents", [])
+    document = next((d for d in documents if d["id"] == doc_id), None)
+    
+    if not document:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Document not found"
+        )
+    
+    # Find file
+    file_path = None
+    for ext in ['.pdf', '.doc', '.docx']:
+        potential_path = UPLOAD_DIR / f"{doc_id}{ext}"
+        if potential_path.exists():
+            file_path = potential_path
+            break
+    
+    if not file_path:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Document file not found"
+        )
+    
+    return FileResponse(
+        path=file_path,
+        filename=document["filename"],
+        media_type="application/octet-stream"
+    )
+
+@api_router.delete("/profile/document/{doc_id}")
+async def delete_document(request: Request, doc_id: str):
+    """
+    Delete a business document
+    """
+    user = await get_current_user(request, db)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated"
+        )
+    
+    # Find and remove document from profile
+    profile = await db.business_profiles.find_one({"user_id": user.id})
+    if not profile:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Profile not found"
+        )
+    
+    documents = profile.get("documents", [])
+    document = next((d for d in documents if d["id"] == doc_id), None)
+    
+    if not document:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Document not found"
+        )
+    
+    # Remove from database
+    documents = [d for d in documents if d["id"] != doc_id]
+    await db.business_profiles.update_one(
+        {"user_id": user.id},
+        {"$set": {"documents": documents, "updated_at": datetime.now(timezone.utc)}}
+    )
+    
+    # Delete file
+    for ext in ['.pdf', '.doc', '.docx']:
+        file_path = UPLOAD_DIR / f"{doc_id}{ext}"
+        if file_path.exists():
+            file_path.unlink()
+            break
+    
+    logger.info(f"Document deleted for user: {user.email}, doc_id: {doc_id}")
+    return {"message": "Document deleted successfully"}
+
 # Include the router in the main app
 app.include_router(api_router)
 
