@@ -366,8 +366,78 @@ async def delete_business(request: Request, business_id: str):
     logger.info(f"Business deleted for user: {user.email}, business_id: {business_id}")
     return {"message": "Business deleted successfully"}
 
-@api_router.post("/profile/upload-document")
-async def upload_document(request: Request, file: UploadFile = File(...)):
+@api_router.post("/business/{business_id}/upload-logo")
+async def upload_logo(request: Request, business_id: str, file: UploadFile = File(...)):
+    """
+    Upload business logo
+    """
+    user = await get_current_user(request, db)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated"
+        )
+    
+    # Validate file type
+    allowed_extensions = ['.png', '.jpg', '.jpeg']
+    file_ext = Path(file.filename).suffix.lower()
+    if file_ext not in allowed_extensions:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid file type. Allowed: {', '.join(allowed_extensions)}"
+        )
+    
+    # Validate file size (2MB max for logo)
+    content = await file.read()
+    if len(content) > 2 * 1024 * 1024:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="File size must be less than 2MB"
+        )
+    
+    # Generate unique filename
+    logo_id = str(uuid.uuid4())
+    safe_filename = f"{logo_id}{file_ext}"
+    file_path = UPLOAD_DIR / safe_filename
+    
+    # Save file
+    with open(file_path, 'wb') as f:
+        f.write(content)
+    
+    logo_url = f"/api/business/{business_id}/logo/{logo_id}"
+    
+    # Update business with logo URL
+    await db.business_profiles.update_one(
+        {"_id": business_id, "user_id": user.id},
+        {"$set": {"logo_url": logo_url, "updated_at": datetime.now(timezone.utc)}}
+    )
+    
+    logger.info(f"Logo uploaded for business: {business_id}")
+    return {"logo_url": logo_url}
+
+@api_router.get("/business/{business_id}/logo/{logo_id}")
+async def get_logo(business_id: str, logo_id: str):
+    """
+    Get business logo
+    """
+    # Find file
+    file_path = None
+    for ext in ['.png', '.jpg', '.jpeg']:
+        potential_path = UPLOAD_DIR / f"{logo_id}{ext}"
+        if potential_path.exists():
+            file_path = potential_path
+            break
+    
+    if not file_path:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Logo not found"
+        )
+    
+    return FileResponse(path=file_path, media_type="image/jpeg")
+
+@api_router.post("/business/{business_id}/upload-document")
+async def upload_document(request: Request, business_id: str, file: UploadFile = File(...)):
     """
     Upload a business document (menu, service list, etc.)
     """
