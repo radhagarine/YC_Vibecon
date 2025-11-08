@@ -27,9 +27,11 @@ const BusinessesPage = ({ user }) => {
 
   const loadBusinesses = async () => {
     try {
+      console.log('Loading businesses...');
       const response = await axios.get(`${API}/businesses`, {
         withCredentials: true
       });
+      console.log('Businesses loaded:', response.data.businesses);
       setBusinesses(response.data.businesses.map((b, idx) => ({ ...b, index: idx })));
     } catch (error) {
       console.error('Error loading businesses:', error);
