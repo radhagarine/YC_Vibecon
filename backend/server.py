@@ -244,24 +244,16 @@ async def get_business_types():
     """
     return {"business_types": BUSINESS_TYPES}
 
-@api_router.post("/profile")
-async def create_business_profile(request: Request, profile_data: BusinessProfileCreate):
+@api_router.post("/business")
+async def create_business(request: Request, profile_data: BusinessProfileCreate):
     """
-    Create business profile for current user.
+    Create new business for current user.
     """
     user = await get_current_user(request, db)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Not authenticated"
-        )
-    
-    # Check if profile already exists
-    existing_profile = await db.business_profiles.find_one({"user_id": user.id})
-    if existing_profile:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Profile already exists. Use PUT to update."
         )
     
     # Validate business type
@@ -271,19 +263,20 @@ async def create_business_profile(request: Request, profile_data: BusinessProfil
             detail=f"Invalid business_type. Must be one of: {', '.join(BUSINESS_TYPES)}"
         )
     
-    # Create profile
-    profile = BusinessProfile(
+    # Create business
+    business = BusinessProfile(
         user_id=user.id,
         **profile_data.dict()
     )
     
-    await db.business_profiles.insert_one(profile.dict())
+    business_dict = business.dict(by_alias=True)
+    await db.business_profiles.insert_one(business_dict)
     
-    logger.info(f"Profile created for user: {user.email}")
+    logger.info(f"Business created for user: {user.email}, business: {business.business_name}")
     
-    # Return without _id
-    profile_dict = profile.dict()
-    return profile_dict
+    # Return with id instead of _id
+    business_dict["id"] = str(business_dict.pop("_id"))
+    return business_dict
 
 @api_router.put("/profile")
 async def update_business_profile(request: Request, profile_data: BusinessProfileUpdate):
