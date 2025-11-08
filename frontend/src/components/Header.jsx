@@ -14,15 +14,19 @@ const Header = ({ isAuthenticated, onSignIn, onSignOut, onNavigate }) => {
     <header className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-sm">
       <div className="container mx-auto px-6 py-4 flex items-center justify-between">
         <div className="flex items-center">
-          <img 
-            src="https://customer-assets.emergentagent.com/job_7830f837-81bb-4066-8995-2090a92ac447/artifacts/5clcks0p_logo.mp4"
-            alt="AIRA Logo" 
-            className="h-12"
+          <video 
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="h-12 w-auto"
             onError={(e) => {
               e.target.style.display = 'none';
-              e.target.nextSibling.style.display = 'block';
+              e.target.nextElementSibling.style.display = 'block';
             }}
-          />
+          >
+            <source src="https://customer-assets.emergentagent.com/job_7830f837-81bb-4066-8995-2090a92ac447/artifacts/5clcks0p_logo.mp4" type="video/mp4" />
+          </video>
           <div className="text-red-600 font-bold text-3xl" style={{ display: 'none' }}>AIRA</div>
         </div>
         
