@@ -570,8 +570,16 @@ async def get_document(request: Request, business_id: str, doc_id: str):
             detail="Not authenticated"
         )
     
+    # Handle both string IDs and ObjectIds
+    from bson import ObjectId
+    query_id = business_id
+    try:
+        query_id = ObjectId(business_id)
+    except:
+        pass
+    
     # Find document in business
-    business = await db.business_profiles.find_one({"_id": business_id, "user_id": user.id})
+    business = await db.business_profiles.find_one({"_id": query_id, "user_id": user.id})
     if not business:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
