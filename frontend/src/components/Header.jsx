@@ -1,10 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from './ui/button';
 import { User } from 'lucide-react';
 
 const Header = ({ isAuthenticated, onSignIn, onSignOut, onNavigate }) => {
-  const [logoError, setLogoError] = useState(false);
-
   const scrollToSection = (sectionId) => {
     const element = document.getElementById(sectionId);
     if (element) {
