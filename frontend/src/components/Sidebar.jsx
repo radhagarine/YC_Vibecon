@@ -47,7 +47,7 @@ const Sidebar = () => {
                   decoding="async" 
                   data-nimg="1" 
                   className="object-contain" 
-                  src="/aira-logo.png"
+                  src="/aira-logo-white.png"
                   style={{ color: 'transparent' }}
                 />
               </div>
