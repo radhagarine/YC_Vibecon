@@ -24,19 +24,16 @@ const Sidebar = () => {
         isCollapsed ? 'w-20' : 'w-64'
       }`}
     >
-      {/* Logo and Hamburger */}
-      <div className="px-6 py-8 flex items-center justify-between border-b border-red-700/50">
-        <Button
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          variant="ghost"
-          size="lg"
-          className="text-white hover:bg-red-800 p-4"
-        >
-          <Menu className="w-10 h-10" />
-        </Button>
-        {!isCollapsed && (
+      {/* Logo Section - Aligned with top nav bar height */}
+      <div className="h-[72px] flex items-center justify-center border-b border-red-700/50 px-4">
+        {!isCollapsed ? (
           <div 
-            className="w-32 h-20 bg-contain bg-no-repeat bg-center"
+            className="w-40 h-16 bg-contain bg-no-repeat bg-center"
+            style={{ backgroundImage: 'url(/aira-logo.png)' }}
+          />
+        ) : (
+          <div 
+            className="w-12 h-12 bg-contain bg-no-repeat bg-center"
             style={{ backgroundImage: 'url(/aira-logo.png)' }}
           />
         )}
@@ -44,6 +41,14 @@ const Sidebar = () => {
 
       {/* Navigation */}
       <nav className="p-4">
+        {/* Hamburger Menu Button */}
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="w-full flex items-center space-x-3 px-4 py-3.5 rounded-lg mb-4 transition-all text-red-100 hover:bg-red-800/50"
+        >
+          <Menu className="w-6 h-6 flex-shrink-0" />
+          {!isCollapsed && <span className="font-medium text-base">Menu</span>}
+        </button>
         {menuItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.path;
