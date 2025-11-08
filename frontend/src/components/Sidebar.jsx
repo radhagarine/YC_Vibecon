@@ -24,12 +24,12 @@ const Sidebar = () => {
         isCollapsed ? 'w-20' : 'w-64'
       }`}
     >
-      {/* Logo Section - Aligned with top nav bar height */}
-      <div className="h-[72px] flex items-center justify-between border-b border-red-700/50 px-4">
+      {/* Logo Section - White background, aligned with top nav bar height */}
+      <div className="h-[72px] flex items-center justify-between bg-white border-b border-gray-200 px-4">
         {/* Hamburger Menu */}
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="text-white hover:bg-red-800/50 p-2 rounded transition-colors"
+          className="text-gray-700 hover:bg-gray-100 p-2 rounded transition-colors"
         >
           <Menu className="w-7 h-7" />
         </button>
