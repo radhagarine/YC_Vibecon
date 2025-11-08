@@ -315,10 +315,10 @@ const Profile = ({ user, onSignOut }) => {
                   <Input
                     value={newService}
                     onChange={(e) => setNewService(e.target.value)}
-                    onKeyPress={(e) => {
+                    onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         e.preventDefault();
-                        addService();
+                        addService(e);
                       }
                     }}
                     placeholder="e.g., Hair Coloring, Tax Consulting"
