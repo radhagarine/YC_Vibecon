@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Building2, FileText, Phone, BarChart3, Calendar, Settings, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Building2, FileText, Phone, BarChart3, Calendar, Settings, Menu } from 'lucide-react';
 import { Button } from './ui/button';
 
 const Sidebar = () => {
