@@ -34,16 +34,19 @@ class BusinessDocument(BaseModel):
         json_encoders = {datetime: lambda v: v.isoformat()}
 
 class BusinessProfile(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), alias="_id")
     user_id: str
     business_name: str
     business_type: str
     custom_services: list[str] = Field(default_factory=list)
     business_phone: str
+    logo_url: Optional[str] = None
     documents: list[BusinessDocument] = Field(default_factory=list)
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     class Config:
+        populate_by_name = True
         json_encoders = {datetime: lambda v: v.isoformat()}
 
 class BusinessProfileCreate(BaseModel):
