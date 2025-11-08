@@ -451,11 +451,19 @@ async def upload_logo(request: Request, business_id: str, file: UploadFile = Fil
     with open(file_path, 'wb') as f:
         f.write(content)
     
+    # Handle both string IDs and ObjectIds
+    from bson import ObjectId
+    query_id = business_id
+    try:
+        query_id = ObjectId(business_id)
+    except:
+        pass
+    
     logo_url = f"/api/business/{business_id}/logo/{logo_id}"
     
     # Update business with logo URL
     await db.business_profiles.update_one(
-        {"_id": business_id, "user_id": user.id},
+        {"_id": query_id, "user_id": user.id},
         {"$set": {"logo_url": logo_url, "updated_at": datetime.now(timezone.utc)}}
     )
     
