@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Building2, FileText, Phone, BarChart3, Calendar, Settings } from 'lucide-react';
+import { LayoutDashboard, Building2, FileText, Phone, BarChart3, Calendar, Settings, Menu, X } from 'lucide-react';
+import { Button } from './ui/button';
 
 const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const menuItems = [
     { icon: LayoutDashboard, label: 'Overview', path: '/dashboard' },
@@ -17,14 +19,28 @@ const Sidebar = () => {
   ];
 
   return (
-    <div className="w-64 bg-white border-r border-gray-200 min-h-screen">
-      {/* Logo */}
-      <div className="p-6 border-b border-gray-200">
-        <img 
-          src="/aira-logo.png" 
-          alt="AIRA" 
-          className="h-10 w-auto"
-        />
+    <div 
+      className={`bg-gradient-to-b from-red-900 via-red-800 to-red-900 min-h-screen transition-all duration-300 ${
+        isCollapsed ? 'w-20' : 'w-64'
+      }`}
+    >
+      {/* Logo and Hamburger */}
+      <div className="p-6 flex items-center justify-between border-b border-red-700/50">
+        {!isCollapsed && (
+          <img 
+            src="/aira-logo.png" 
+            alt="AIRA" 
+            className="h-14 w-auto"
+          />
+        )}
+        <Button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          variant="ghost"
+          size="sm"
+          className="text-white hover:bg-red-800"
+        >
+          {isCollapsed ? <Menu className="w-6 h-6" /> : <X className="w-6 h-6" />}
+        </Button>
       </div>
 
       {/* Navigation */}
@@ -37,14 +53,15 @@ const Sidebar = () => {
             <button
               key={item.path}
               onClick={() => navigate(item.path)}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg mb-1 transition-colors ${
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg mb-2 transition-all ${
                 isActive
-                  ? 'bg-red-50 text-red-600'
-                  : 'text-gray-700 hover:bg-gray-100'
-              }`}
+                  ? 'bg-red-700 text-white'
+                  : 'text-red-100 hover:bg-red-800/50'
+              } ${isCollapsed ? 'justify-center' : ''}`}
+              title={isCollapsed ? item.label : ''}
             >
-              <Icon className="w-5 h-5" />
-              <span className="font-medium">{item.label}</span>
+              <Icon className="w-5 h-5 flex-shrink-0" />
+              {!isCollapsed && <span className="font-medium">{item.label}</span>}
             </button>
           );
         })}
