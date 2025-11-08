@@ -191,19 +191,24 @@ const BusinessFormModal = ({ business, onClose }) => {
 
       if (business) {
         // Update existing business
-        await axios.put(`${API}/business/${business.id}`, payload, {
+        const response = await axios.put(`${API}/business/${business.id}`, payload, {
           withCredentials: true
         });
+        console.log('Business updated:', response.data);
         toast.success('Business updated successfully');
       } else {
         // Create new business
-        await axios.post(`${API}/business`, payload, {
+        const response = await axios.post(`${API}/business`, payload, {
           withCredentials: true
         });
+        console.log('Business created:', response.data);
         toast.success('Business created successfully');
       }
 
-      onClose(true);
+      // Close modal and trigger refresh
+      setTimeout(() => {
+        onClose(true);
+      }, 500);
     } catch (error) {
       console.error('Error saving business:', error);
       toast.error(error.response?.data?.detail || 'Failed to save business');
