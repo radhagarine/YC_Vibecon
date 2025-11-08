@@ -1,8 +1,10 @@
 import React, { useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Routes, Route } from 'react-router-dom';
 import { Button } from '../components/ui/button';
-import { LogOut, LayoutDashboard, User } from 'lucide-react';
+import { LogOut } from 'lucide-react';
+import Sidebar from '../components/Sidebar';
 import DashboardHome from './DashboardHome';
+import BusinessesPage from './BusinessesPage';
 
 const Dashboard = ({ user, onSignOut }) => {
   const navigate = useNavigate();
