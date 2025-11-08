@@ -363,8 +363,16 @@ async def delete_business(request: Request, business_id: str):
     
     logger.info(f"Attempting to delete business: {business_id} for user: {user.email}")
     
+    # Try to find business - handle both string IDs and ObjectIds
+    from bson import ObjectId
+    query_id = business_id
+    try:
+        query_id = ObjectId(business_id)
+    except:
+        pass
+    
     # Find business
-    business = await db.business_profiles.find_one({"_id": business_id, "user_id": user.id})
+    business = await db.business_profiles.find_one({"_id": query_id, "user_id": user.id})
     if not business:
         logger.error(f"Business {business_id} not found for deletion")
         raise HTTPException(
