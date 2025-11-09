@@ -15,9 +15,11 @@ const Header = ({ isAuthenticated, onSignIn, onSignOut, onNavigate }) => {
       <div className="container mx-auto px-6 py-4 flex items-center justify-between">
         <div className="flex items-center">
           <img 
-            src="/aira-logo.png" 
+            src="/aira-logo-white.png" 
             alt="AIRA Logo" 
-            className="h-12 w-auto"
+            width="130"
+            height="42"
+            className="object-contain"
           />
         </div>
         
