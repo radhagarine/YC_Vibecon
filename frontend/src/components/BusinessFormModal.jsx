@@ -62,20 +62,30 @@ const BusinessFormModal = ({ business, onClose }) => {
   const addService = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    console.log('addService called, newService:', newService);
     if (newService.trim()) {
-      setFormData(prev => ({
-        ...prev,
-        custom_services: [...(prev.custom_services || []), newService.trim()]
-      }));
+      setFormData(prev => {
+        const updatedServices = [...(prev.custom_services || []), newService.trim()];
+        console.log('Adding service, updated services:', updatedServices);
+        return {
+          ...prev,
+          custom_services: updatedServices
+        };
+      });
       setNewService('');
     }
   };
 
   const removeService = (index) => {
-    setFormData(prev => ({
-      ...prev,
-      custom_services: prev.custom_services.filter((_, i) => i !== index)
-    }));
+    console.log('removeService called, index:', index);
+    setFormData(prev => {
+      const updatedServices = prev.custom_services.filter((_, i) => i !== index);
+      console.log('Removing service, updated services:', updatedServices);
+      return {
+        ...prev,
+        custom_services: updatedServices
+      };
+    });
   };
 
   const handleLogoUpload = async (e) => {
