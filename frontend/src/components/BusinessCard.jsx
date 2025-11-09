@@ -7,7 +7,7 @@ const BusinessCard = ({ business, onEdit, onDelete, onCalendar }) => {
   const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
   return (
-    <Card className="bg-white border border-gray-200 hover:shadow-lg transition-shadow overflow-hidden">
+    <Card className="bg-white border-2 border-red-200 hover:shadow-lg hover:border-red-300 transition-all overflow-hidden">
       {/* Red Top Border */}
       <div className="h-1 bg-gradient-to-r from-red-600 to-red-700"></div>
       
